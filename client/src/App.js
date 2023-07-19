@@ -20,6 +20,33 @@ function App() {
 
   }
 
+  const completeTodo = async (id) =>{
+    await fetch(API_BASE + "/todos/complete/" + id , {
+      method : "PUT"
+    }).then(res => res.json())
+      .then(data => {
+        const newTodos = todos.map(todo => {
+          if(todo._id === data._id){
+            todo.complete = data.complete;
+          }
+          return todo;
+        });
+        setToDos(newTodos);
+      })
+      .catch(err => console.error("Error: ", err));
+  }
+
+  const deleteTodo = async id =>{
+    await fetch(API_BASE + "/todos/delete/" + id , {
+      method : "DELETE"
+    }).then(res => res.json())
+      .then(() => {
+        const newTodos = todos.filter(todo => todo._id !== id);
+        setToDos(newTodos);
+      })
+      .catch(err => console.error("Error: ", err));
+  }
+
   return (
     <div className="App">
 
@@ -29,10 +56,10 @@ function App() {
       <div className="todos">
 
         {todos.map(todo => (
-          <div className="todo" key={todo._id}>
+          <div className={"todo" + (todo.complete ? " is-complete": "")} key={todo._id} onClick={()=>completeTodo(todo._id)}>
             <div className="checkbox"></div>
             <div className="text">{todo.text}</div>
-            <div className="delete-button">X</div>
+            <div className="delete-button" onClick={()=>deleteTodo(todo._id)}>X</div>
           </div>
 
         )
@@ -40,8 +67,8 @@ function App() {
         )}
 
       </div>
-
-
+      
+      <div className="add-button" onClick={()=>setPopupActive(true)}>+</div>
       
     </div>
   );
